@@ -1,0 +1,35 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booking Confirmation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
+        <h1 class="text-2xl font-bold text-green-600">Booking Confirmed! 🎉</h1>
+        <p class="text-gray-700 mt-2">Thank you for booking with us.</p>
+
+        <div class="bg-gray-50 p-4 rounded-lg mt-4">
+            <p class="text-lg font-medium">Your Booking ID:</p>
+            <p class="text-2xl font-bold text-gray-800">{{ booking.id }}</p>
+
+            <p class="text-lg font-medium mt-3">Room Access Code:</p>
+            <p class="text-2xl font-bold text-blue-600 tracking-widest">{{booking.booking_uid }}</p>
+        </div>
+
+        <p class="text-gray-600 text-sm mt-4">
+            Use this code at the room keypad to access your room.
+        </p>
+
+        <a href="{% url 'home' %}" 
+           class="mt-6 inline-block bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition">
+           Back to Home
+        </a>
+    </div>
+
+</body>
+</html>
