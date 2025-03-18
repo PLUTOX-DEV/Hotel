@@ -11,7 +11,6 @@ import json
 import requests
 from django.http import JsonResponse
 from .models import Payment
-from .paystack import Paystack
 from django.conf import settings
 from django.urls import reverse
 from .models import Payment, Booking
