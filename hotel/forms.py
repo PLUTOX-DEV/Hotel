@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Booking, Guest , RoomType
+from .models import Booking, Guest , RoomType , Contact
 
 class BookingForm(forms.ModelForm):
     check_in_date = forms.DateField(
@@ -69,3 +69,13 @@ class RoomSearchForm(forms.Form):
         widget=forms.NumberInput(attrs={'class': 'form-control'}),
         initial=1
     )
+    
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
+        fields = ['name', 'email', 'message']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Name'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Your Email'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Your Message'}),
+        }

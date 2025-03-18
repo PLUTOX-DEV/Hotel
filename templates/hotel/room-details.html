@@ -2,6 +2,8 @@
 
 {% extends 'base.html' %}
 {% load static %}
+{% load custom_filters %}
+
 {% block main %}   
     <!-- Room Details Section Begin -->
     <section class="room-details-section spad">
@@ -25,7 +27,7 @@
                                     <a href="{% url 'book_room' room.id %}">Booking Now</a>
                                 </div>
                             </div>
-                            <h2>{{room.room_type.price_per_night}}$<span>/Pernight</span></h2>
+                            <h2>&#x20A6;{{room.room_type.price_per_night}}<span>/Pernight</span></h2>
                             <table>
                                 <tbody>
                                     <tr>
@@ -34,7 +36,7 @@
                                     </tr>
                                     <tr>
                                         <td class="r-o">Capacity:</td>
-                                        <td>Max persion{{room.room_type.capacity}}</td>
+                                        <td>Max persion {{room.room_type.capacity}}</td>
                                     </tr>
                                     <tr>
                                         <td class="r-o">Bed:</td>
@@ -42,7 +44,7 @@
                                     </tr>
                                     <tr>
                                         <td class="r-o">Services:</td>
-                                        <td>{{room.room_type.service}}</td>
+                                        <td>{{room.room_type.service|capitalize_words}}</td>
                                     </tr>
                                 </tbody>
                             </table>

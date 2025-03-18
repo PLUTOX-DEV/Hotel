@@ -12,11 +12,18 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+load_dotenv()  
+
+# Load environment variables from .env file
+
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_DIR = BASE_DIR/ "templates"
 
 MEDIA_ROOT = BASE_DIR / "media"
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -137,7 +144,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'  # URL to access media files in the browser
 MEDIA_ROOT = os.path.join(MEDIA_ROOT) 
+
+
+
 # unfold config
+
 
 
 
@@ -271,6 +282,11 @@ UNFOLD = {
                         "title": _("Payment"),
                         "icon": "payments",
                         "link": reverse_lazy("admin:hotel_payment_changelist"),
+                    },
+                    {
+                        "title": _("Contact"),
+                        "icon": "contact_page",
+                        "link": reverse_lazy("admin:hotel_contact_changelist"),
                     },
                 ],
             },

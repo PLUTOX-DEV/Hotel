@@ -162,7 +162,7 @@
                         <div class="hp-room-item set-bg" data-setbg="{{room.room_type.image.url}}">
                             <div class="hr-text">
                                 <h3> {{room.room_type}}</h3>
-                                <h2>{{room.room_type.price_per_night}}$<span>/Pernight</span></h2>
+                                <h2>&#x20A6;{{room.room_type.price_per_night}}<span>/Pernight</span></h2>
                                 <table>
                                     <tbody>
                                         <tr>
@@ -179,7 +179,7 @@
                                         </tr>
                                         <tr>
                                             <td class="r-o">Services:</td>
-                                            <td>{{room.room_type.service}}</td>
+                                            <td>{{room.room_type.service|truncatechars:16}}</td>
                                         </tr>
                                     </tbody>
                                 </table>

@@ -43,16 +43,40 @@ class Booking(models.Model):
         unique=True,
         editable=False
     )
-    guest = models.ForeignKey(Guest, on_delete=models.CASCADE)
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    booking_uid = models.CharField(max_length=6, unique=True, blank=True)
+    guest = models.ForeignKey(Guest, on_delete=models.CASCADE)
     check_in_date = models.DateField()
     check_out_date = models.DateField()
-    is_active = models.BooleanField(default=True)
+    booking_uid = models.CharField(max_length=6, unique=True, editable=False)
+
+    is_active = models.BooleanField(default=True)  # Booking status
+
+    def save(self, *args, **kwargs):
+        """Override save to mark the room as unavailable when booked"""
+        if self.is_active:  # Only update if booking is active
+            self.room.is_available = False  # Set room as booked
+            self.room.save()
+
+        super().save(*args, **kwargs)
+
+    def cancel_booking(self):
+        """Function to cancel a booking and make the room available again"""
+        self.is_active = False
+        self.room.is_available = True
+        self.room.save()
+        self.save()
 
     def __str__(self):
-        return f"{self.guest} - {self.room}"
+        return f"Booking {self.booking_uid} - {self.room.room_type} ({self.check_in_date} to {self.check_out_date})"
+    
+class Contact(models.Model):
+    name = models.CharField(max_length=255)
+    email = models.EmailField()
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return f"Message from {self.name} ({self.email})"
 
 class Payment(models.Model):
     booking = models.ForeignKey(Booking, on_delete=models.CASCADE)
