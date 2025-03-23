@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex justify-center items-center min-h-screen">
+
+    <div class="bg-white shadow-xl rounded-xl p-8 max-w-md w-full">
+        <h2 class="text-3xl font-bold text-center text-gray-800 mb-6">Create an Account</h2>
+
+        <!-- Form -->
+        <form method="POST" action="{{ request.path }}" class="space-y-5">
+            {% csrf_token %}
+
+            <!-- Error Messages -->
+            {% if form.errors %}
+                <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <p class="text-sm"><strong>{{ field|title }}:</strong> {{ error }}</p>
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <!-- First Name Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">First Name</label>
+                <input type="text" name="first_name" placeholder="Enter your first name" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Last Name Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Last Name</label>
+                <input type="text" name="last_name" placeholder="Enter your last name" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Phone Number Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Phone Number</label>
+                <input type="tel" name="phone" placeholder="Enter your phone number" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Username Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Username</label>
+                <input type="text" name="username" placeholder="Enter your username" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Email Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Email</label>
+                <input type="email" name="email" placeholder="Enter your email" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Password Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Password</label>
+                <input type="password" name="password" placeholder="Enter password" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Confirm Password Field -->
+            <div>
+                <label class="block text-gray-700 font-semibold">Confirm Password</label>
+                <input type="password" name="confirm_password" placeholder="Confirm password" required 
+                       class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit"
+                    class="w-full bg-blue-600 text-white font-semibold py-3 rounded-lg hover:bg-blue-700 transition">
+                Register
+            </button>
+        </form>
+
+        <!-- Login Redirect -->
+        <p class="mt-5 text-center text-gray-600">
+            Already have an account? 
+            <a href="{% url 'login' %}" class="text-blue-600 hover:underline font-medium">Login here</a>
+        </p>
+    </div>
+
+</body>
+</html>

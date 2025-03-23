@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <!-- Search Form -->
+    <div class="max-w-4xl mx-auto py-10 px-6">
+        <form method="get" action="{% url 'search_view' %}" class="flex items-center space-x-4">
+            <input type="text" name="query" placeholder="Search for rooms..."
+                value="{{ query }}"
+                class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            />
+            <button type="submit" class="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                Search
+            </button>
+        </form>
+    </div>
+
+    <!-- Search Results -->
+    {% if rooms %}
+        <div class="max-w-4xl mx-auto py-10">
+            <h2 class="text-3xl font-semibold mb-6">Search Results</h2>
+            <ul class="space-y-6">
+                {% for room in rooms %}
+                    <li class="p-6 border border-gray-200 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <h3 class="text-2xl font-semibold text-blue-600">{{ room.room_number }}</h3>
+                        <p class="text-gray-700 mt-2">{{ room.room_type }} - {{ room.is_available|yesno:"Available,Not Available" }}</p>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    {% else %}
+        <p class="text-center text-gray-600">No rooms found for your search.</p>
+    {% endif %}
+{% endblock %}

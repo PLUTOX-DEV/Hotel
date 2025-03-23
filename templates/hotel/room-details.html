@@ -51,74 +51,82 @@
                             <p class="f-para">{{room.room_type.service}}                            </p>
                         </div>
                     </div>
+
                     <div class="rd-reviews">
                         <h4>Reviews</h4>
+                        {% for review in reviews %}
                         <div class="review-item">
                             <div class="ri-pic">
-                                <img src="img/room/avatar/avatar-1.jpg" alt="">
+                                <img src="{% static "img/default-avatar.jpg" %}" 
+                                     alt="Reviewer Image" style="width: 50px; height: 50px; border-radius: 50%;">
                             </div>
                             <div class="ri-text">
-                                <span>27 Aug 2019</span>
+                                <span>{{ review.created_at|date:"d M Y" }}</span>
                                 <div class="rating">
+                                    {% for _ in review.rating|rjust:"5"|slice:":review.rating" %}
                                     <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star-half_alt"></i>
+                                    {% endfor %}
+                                    {% for _ in review.rating|rjust:"5"|slice:"review.rating:" %}
+                                    <i class="icon_star_alt"></i>
+                                    {% endfor %}
                                 </div>
-                                <h5>Brandon Kelley</h5>
-                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et dolore
-                                    magnam.</p>
+                                <h5>{% if review.user %} {{ review.user.username }} {% else %} {{ review.name }} {% endif %}</h5>
+                                <p>{{ review.comment }}</p>
                             </div>
                         </div>
-                        <div class="review-item">
-                            <div class="ri-pic">
-                                <img src="img/room/avatar/avatar-2.jpg" alt="">
-                            </div>
-                            <div class="ri-text">
-                                <span>27 Aug 2019</span>
-                                <div class="rating">
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star"></i>
-                                    <i class="icon_star-half_alt"></i>
-                                </div>
-                                <h5>Brandon Kelley</h5>
-                                <p>Neque porro qui squam est, qui dolorem ipsum quia dolor sit amet, consectetur,
-                                    adipisci velit, sed quia non numquam eius modi tempora. incidunt ut labore et dolore
-                                    magnam.</p>
-                            </div>
-                        </div>
+                        {% empty %}
+                        <p>No reviews yet. Be the first to leave a review!</p>
+                        {% endfor %}
                     </div>
+                    
+                    <!-- Review Form -->
                     <div class="review-add">
                         <h4>Add Review</h4>
-                        <form action="#" class="ra-form">
+                        <form method="POST" enctype="multipart/form-data" class="ra-form">
+                            {% csrf_token %}
                             <div class="row">
+                                {% if not user.is_authenticated %}
                                 <div class="col-lg-6">
-                                    <input type="text" placeholder="Name*">
+                                    <input type="text" name="name" placeholder="Name*" required>
                                 </div>
                                 <div class="col-lg-6">
-                                    <input type="text" placeholder="Email*">
+                                    <input type="email" name="email" placeholder="Email*" required>
                                 </div>
+                                {% endif %}
                                 <div class="col-lg-12">
                                     <div>
-                                        <h5>You Rating:</h5>
+                                        <h5>Your Rating:</h5>
                                         <div class="rating">
-                                            <i class="icon_star"></i>
-                                            <i class="icon_star"></i>
-                                            <i class="icon_star"></i>
-                                            <i class="icon_star"></i>
-                                            <i class="icon_star-half_alt"></i>
+                                            {% for i in "54321" %}
+                                            <input type="radio" id="star{{ i }}" name="rating" value="{{ i }}" style="display: none;">
+                                            <label for="star{{ i }}" 
+                                                style="font-size: 24px; color: #ccc; cursor: pointer;"
+                                                onmouseover="this.style.color='gold'"
+                                                onmouseout="this.style.color=document.querySelector('input[id='+this.htmlFor+']:checked')?'gold':'#ccc'">
+                                                ★
+                                            </label>
+                                            {% endfor %}
                                         </div>
                                     </div>
-                                    <textarea placeholder="Your Review"></textarea>
+                                    <style>
+                                        .rating input:checked ~ label {
+                                            color: gold !important;
+                                        }
+                                    
+                                        .rating label:hover,
+                                        .rating label:hover ~ label {
+                                            color: gold !important;
+                                        }
+                                    </style>
+                                    <textarea name="comment" placeholder="Your Review" required></textarea>
                                     <button type="submit">Submit Now</button>
                                 </div>
                             </div>
                         </form>
                     </div>
+                    
+                
+                    
                 </div>
                 <div class="col-lg-4">
                     <div class="room-booking">

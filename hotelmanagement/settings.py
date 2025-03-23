@@ -149,6 +149,10 @@ MEDIA_ROOT = os.path.join(MEDIA_ROOT)
 
 # unfold config
 
+FLUTTERWAVE_PUBLIC_KEY = "FLWPUBK_TEST-cd4979cd614dc4ebda62c54b180e8b62-X"
+FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-fb128dff8900a885478f79df3db60c69-X"
+FLUTTERWAVE_ENCRYPTION_KEY = "FLWSECK_TEST0b9d6b1f894f"
+FLUTTERWAVE_BASE_URL = "https://api.flutterwave.com/v3"
 
 
 
@@ -264,6 +268,11 @@ UNFOLD = {
                         "link": reverse_lazy("admin:auth_user_changelist"),
                     },
                     {
+                        "title": _("Profile"),
+                        "icon": "account_circle",
+                        "link": reverse_lazy("admin:hotel_profile_changelist"),
+                    },
+                    {
                         "title": _("Rooms"),
                         "icon": "room_preferences",
                         "link": reverse_lazy("admin:hotel_room_changelist"),
@@ -287,6 +296,16 @@ UNFOLD = {
                         "title": _("Contact"),
                         "icon": "contact_page",
                         "link": reverse_lazy("admin:hotel_contact_changelist"),
+                    },
+                    {
+                        "title": _("Review"),
+                        "icon": "reviews",
+                        "link": reverse_lazy("admin:hotel_review_changelist"),
+                    },
+                    {
+                        "title": _("Discount"),
+                        "icon": "percent",
+                        "link": reverse_lazy("admin:hotel_discount_changelist"),
                     },
                 ],
             },
