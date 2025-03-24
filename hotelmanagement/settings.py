@@ -307,6 +307,11 @@ UNFOLD = {
                         "icon": "percent",
                         "link": reverse_lazy("admin:hotel_discount_changelist"),
                     },
+                    {
+                        "title": _("Subcribe"),
+                        "icon": "subscriptions",
+                        "link": reverse_lazy("admin:hotel_news_changelist"),
+                    },
                 ],
             },
         ],

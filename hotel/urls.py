@@ -16,6 +16,9 @@ urlpatterns = [
     path('blog-details/',views.blog_details,name="blog_details"),
     path('contact/' , views.contact, name="contact"),
     path('about-us/',views.about_us, name='about-us'),
+    path('subscribe/', views.subscribe_newsletter, name='subscribe_newsletter'),
+     path('newsletter-success/', views.newsletter_success, name='newsletter_success'),
+
     path('search/', views.search_view, name='search_view'),
     
 ]

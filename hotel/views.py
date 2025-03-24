@@ -5,7 +5,7 @@ from django.contrib.auth import login, authenticate, logout
 
 from django.shortcuts import render, redirect, get_object_or_404
 from .models import Room, Booking , Guest , Profile , Review , Discount
-from .forms import BookingForm, GuestForm, RoomSearchForm , ContactForm , ReviewForm , GuestReviewForm , SearchForm
+from .forms import BookingForm, GuestForm, RoomSearchForm , ContactForm , ReviewForm , GuestReviewForm , SearchForm , NewsletterForm
 from django.db.models import Q
 from datetime import date
 import uuid
@@ -315,3 +315,19 @@ def search_view(request):
         'rooms': rooms,
         'query': query,
     })
+    
+def subscribe_newsletter(request):
+    if request.method == 'POST':
+        form = NewsletterForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'message': 'Subscription successful'}, status=200)
+        else:
+            return JsonResponse({'error': 'Invalid email'}, status=400)
+    return JsonResponse({'error': 'Invalid request'}, status=400)
+
+
+
+
+def newsletter_success(request):
+    return render(request, 'hotel/newsletter_success.html')

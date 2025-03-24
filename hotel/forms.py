@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Booking, Guest , RoomType , Contact, Review
+from .models import Booking, Guest , RoomType , Contact, Review , News
 
 from django import forms
 from django.core.exceptions import ValidationError
@@ -146,3 +146,8 @@ class GuestReviewForm(forms.ModelForm):
         
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=100, required=False)
+    
+class NewsletterForm(forms.ModelForm):
+    class Meta:
+        model = News
+        fields = ['email']

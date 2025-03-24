@@ -1,6 +1,6 @@
 from django.contrib import admin
 from unfold.admin import ModelAdmin
-from .models import RoomType, Room, Guest, Booking, Payment , Contact , Profile, Review , Discount
+from .models import RoomType, Room, Guest, Booking, Payment , Contact , Profile, Review , Discount , News
 
 @admin.register(Review)
 class ReviewAdminClass(ModelAdmin):
@@ -28,4 +28,7 @@ class ContactAdminClass(ModelAdmin):
     pass
 @admin.register(Discount)
 class DiscountAdminClass(ModelAdmin):
+    pass
+@admin.register(News)
+class NewsAdminClass(ModelAdmin):
     pass
