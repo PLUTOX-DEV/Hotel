@@ -4,8 +4,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth import login, authenticate, logout
 
 from django.shortcuts import render, redirect, get_object_or_404
-from .models import Room, Booking , Guest , Profile , Review , Discount
-from .forms import BookingForm, GuestForm, RoomSearchForm , ContactForm , ReviewForm , GuestReviewForm , SearchForm , NewsletterForm
+from .models import Room, Booking, Guest, Profile, Review, Discount, RoomType
+from .forms import BookingForm, GuestForm, RoomSearchForm, ContactForm, ReviewForm, GuestReviewForm, SearchForm, NewsletterForm
 from django.db.models import Q
 from datetime import date
 import uuid
@@ -16,21 +16,24 @@ from .models import Payment
 from django.conf import settings
 from django.urls import reverse
 from .models import Payment, Booking
-
-
-
-
+from datetime import timedelta
 
 
 def register_user(request):
     if request.method == "POST":
-        first_name = request.POST["first_name"]
-        last_name = request.POST["last_name"]
-        phone = request.POST["phone_number"]
-        username = request.POST["username"]
-        email = request.POST["email"]
-        password = request.POST["password"]
-        confirm_password = request.POST["confirm_password"]
+        first_name = request.POST.get("first_name", "").strip()
+        last_name = request.POST.get("last_name", "").strip()
+        # Use `.get()` to prevent MultiValueDictKeyError
+        phone = request.POST.get("phone_number", "").strip()
+        username = request.POST.get("username", "").strip()
+        email = request.POST.get("email", "").strip()
+        password = request.POST.get("password", "").strip()
+        confirm_password = request.POST.get("confirm_password", "").strip()
+
+        # Check for required fields
+        if not all([first_name, last_name, phone, username, email, password, confirm_password]):
+            messages.error(request, "All fields are required.")
+            return redirect("register")
 
         if password != confirm_password:
             messages.error(request, "Passwords do not match.")
@@ -45,16 +48,19 @@ def register_user(request):
             return redirect("register")
 
         # Create user
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create_user(
+            username=username, email=email, password=password)
         user.first_name = first_name
         user.last_name = last_name
         user.save()
 
-        # Save phone number in Profile model
-        user.profile.phone_number = phone
-        user.profile.save()
+        # Create a Profile for the user (if it exists)
+        profile, created = Profile.objects.get_or_create(user=user)
+        profile.phone_number = phone
+        profile.save()
 
-        messages.success(request, "Registration successful! You can now log in.")
+        messages.success(
+            request, "Registration successful! You can now log in.")
         return redirect("login")
 
     return render(request, "auth/register.html")
@@ -62,16 +68,23 @@ def register_user(request):
 
 def login_user(request):
     if request.method == "POST":
-        username = request.POST["username"]
-        password = request.POST["password"]
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "").strip()
+
+        # Ensure fields are not empty
+        if not username or not password:
+            messages.error(request, "Both username and password are required.")
+            return redirect("login")
+
         user = authenticate(request, username=username, password=password)
 
         if user is not None:
             login(request, user)
             messages.success(request, "Login successful!")
-            return redirect("home")
+            return redirect("home")  # Redirect to home page
         else:
             messages.error(request, "Invalid username or password.")
+            return redirect("login")  # Stay on login page
 
     return render(request, "auth/login.html")
 
@@ -142,6 +155,8 @@ def room_details(request, room_id):
         'reviews': reviews,
         'form': form
     })
+
+
 def room_list(request):
     form = RoomSearchForm(request.GET or None)
     rooms = Room.objects.filter(is_available=True)
@@ -180,86 +195,84 @@ def room_list(request):
     })
 
 
-
-
 def book_room(request, room_id=None):
     room = get_object_or_404(Room, id=room_id)
     guest = None  # Default to None
-
-    # Initialize guest form only if the user is not authenticated
     guest_form = GuestForm(request.POST or None) if not request.user.is_authenticated else None
+
     initial_data = {'room': room}
 
+    # Handle logged-in users
     if request.user.is_authenticated:
-        # Get user profile
-        try:
-            profile = Profile.objects.get(user=request.user)
-            guest, created = Guest.objects.get_or_create(
-                email=request.user.email,  # Use email as unique identifier
-                defaults={
-                    'first_name': request.user.first_name,
-                    'last_name': request.user.last_name,
-                    'phone_number': profile.phone_number
-                }
-            )
-            initial_data['guest'] = guest  # Assign to form
-        except Profile.DoesNotExist:
-            profile = None
+        profile = Profile.objects.filter(user=request.user).first()
+        guest, created = Guest.objects.get_or_create(
+            email=request.user.email,
+            defaults={
+                'first_name': request.user.first_name,
+                'last_name': request.user.last_name,
+                'phone_number': profile.phone_number if profile else None
+            }
+        )
+        initial_data['guest'] = guest
 
     booking_form = BookingForm(request.POST or None, initial=initial_data)
 
     if request.method == 'POST':
-        # Validate both forms before saving
         if (guest_form is None or guest_form.is_valid()) and booking_form.is_valid():
             booking = booking_form.save(commit=False)
 
+            # Assign user or guest to booking
             if request.user.is_authenticated:
-                booking.guest = guest  # Assign the correct Guest instance
-                booking.user = request.user  # Assign user
+                booking.guest = guest
+                booking.user = request.user
             else:
-                guest = guest_form.save()  # Save the guest details for non-logged-in users
-                booking.guest = guest  # Assign guest for non-logged-in users
+                guest = guest_form.save()  
+                booking.guest = guest  
 
-            # Apply Discount
+            # Ensure valid stay duration
+            total_nights = (booking.check_out_date - booking.check_in_date).days
+            if total_nights < 1:
+                booking_form.add_error('check_out_date', "Check-out must be at least one day after check-in.")
+                return render(request, 'hotel/book_room.html', {
+                    'guest_form': guest_form,
+                    'booking_form': booking_form,
+                    'room': room
+                })
+
+            # Calculate base price
+            base_price = total_nights * room.room_type.price_per_night
+
+            # **Handle Discount Code**
             discount_code = booking_form.cleaned_data.get('discount_code')
             if discount_code:
-                try:
-                    discount = Discount.objects.get(code=discount_code)
-                    if discount.is_valid():
-                        # Calculate base price
-                        total_nights = (booking.check_out_date - booking.check_in_date).days
-                        base_price = booking.room.price_per_night * total_nights
-                        
-                        # Apply discount to the base price
-                        discount_amount = (discount.percentage / 100) * base_price
-                        final_price = base_price - discount_amount
-                        booking.discount = discount  # Link discount to booking
-                        booking.final_price = final_price  # Apply the discounted price
-
-                        # Track discount usage if applicable
-                        if hasattr(discount, "used_count"):
-                            discount.used_count += 1
-                            discount.save()
-
-                        if hasattr(discount, "used_by_users"):
-                            discount.used_by_users.add(request.user)
-
+                discount = Discount.objects.filter(code=discount_code).first()
+                if discount:
+                    if not discount.is_valid():
+                        booking_form.add_error('discount_code', 'Discount code has expired.')
+                    elif hasattr(discount, "max_usage") and discount.used_count >= discount.max_usage:
+                        booking_form.add_error('discount_code', 'Discount code has reached its usage limit.')
                     else:
-                        messages.error(request, "Discount code has expired.")
-                except Discount.DoesNotExist:
-                    messages.error(request, "Invalid discount code.")
+                        discount_amount = (discount.percentage / 100) * base_price
+                        booking.discount = discount
+                        booking.final_price = base_price - discount_amount
 
-            # Save the booking with applied discount
+                        # Track discount usage
+                        discount.used_count = getattr(discount, "used_count", 0) + 1
+                        discount.save()
+                else:
+                    booking_form.add_error('discount_code', 'Invalid discount code.')
+
+            # If errors exist, return the form
+            if booking_form.errors:
+                return render(request, 'hotel/book_room.html', {
+                    'guest_form': guest_form,
+                    'booking_form': booking_form,
+                    'room': room
+                })
+
             booking.save()
-
-            return redirect("booking_confirmation", booking_id=booking.id)
-
-        else:
-            # Display error messages for form issues
-            if guest_form and not guest_form.is_valid():
-                messages.error(request, "There were errors in the guest information.")
-            if not booking_form.is_valid():
-                messages.error(request, "There were errors in the booking form.")
+            messages.success(request, "Booking successful!")
+            return redirect('booking_confirmation', booking_id=booking.id)
 
     return render(request, 'hotel/book_room.html', {
         'guest_form': guest_form,
@@ -268,15 +281,15 @@ def book_room(request, room_id=None):
     })
 
 
-
-
 def booking_confirmation(request, booking_id):
-    booking = Booking.objects.get(id=booking_id)
-    return render(request, 'hotel/booking_confirmation.html', {'booking': booking})
+    booking = get_object_or_404(Booking, id=booking_id)
+    return render(request, "hotel/booking_confirmation.html", {"booking": booking})
 
 
 def blog(request):
     return render(request, "hotel/blog.html")
+
+
 def blog_details(request):
     return render(request, "hotel/blog-details.html")
 
@@ -286,7 +299,8 @@ def contact(request):
         form = ContactForm(request.POST)
         if form.is_valid():
             form.save()
-            messages.success(request, "Your message has been sent successfully!")
+            messages.success(
+                request, "Your message has been sent successfully!")
             return redirect('contact')
     else:
         form = ContactForm()
@@ -309,13 +323,14 @@ def search_view(request):
             rooms = Room.objects.filter(
                 Q(room_number__icontains=query) | Q(room_type__icontains=query)
             )
-    
+
     return render(request, 'base.html', {
         'form': form,
         'rooms': rooms,
         'query': query,
     })
-    
+
+
 def subscribe_newsletter(request):
     if request.method == 'POST':
         form = NewsletterForm(request.POST)
@@ -325,8 +340,6 @@ def subscribe_newsletter(request):
         else:
             return JsonResponse({'error': 'Invalid email'}, status=400)
     return JsonResponse({'error': 'Invalid request'}, status=400)
-
-
 
 
 def newsletter_success(request):

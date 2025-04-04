@@ -7,19 +7,30 @@
     <title>Booking Confirmation</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gray-100 flex items-center justify-center h-screen">
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
 
-    <div class="bg-white p-8 rounded-xl shadow-lg max-w-md w-full text-center">
-        <h1 class="text-2xl font-bold text-green-600">Booking Confirmed! 🎉</h1>
+    <div class="bg-white p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
+        <h1 class="text-3xl font-bold text-green-600">Booking Confirmed! 🎉</h1>
         <p class="text-gray-700 mt-2">Thank you for booking with us.</p>
 
-        <div class="bg-gray-50 p-4 rounded-lg mt-4">
+        <!-- Booking Details -->
+        <div class="bg-gray-50 p-6 rounded-lg mt-4 shadow">
             <p class="text-lg font-medium">Your Booking ID:</p>
             <p class="text-2xl font-bold text-gray-800">{{ booking.id }}</p>
 
             <p class="text-lg font-medium mt-3">Room Access Code:</p>
-            <p class="text-2xl font-bold text-blue-600 tracking-widest">{{booking.booking_uid }}</p>
+            <p class="text-2xl font-bold text-blue-600 tracking-widest">{{ booking.booking_uid }}</p>
         </div>
+
+        <!-- Discount Details -->
+        {% if booking.discount %}
+        <div class="bg-blue-50 p-6 rounded-lg mt-4 shadow">
+            <p class="text-lg font-medium text-blue-700">Discount Applied:</p>
+            <p class="text-xl font-bold text-gray-800">Code: {{ booking.discount.code }}</p>
+            <p class="text-lg font-medium text-gray-600">Discount: {{ booking.discount.percentage }}% off</p>
+            <p class="text-lg font-medium text-gray-800">Final Price: <span class="text-green-600 font-bold">${{ booking.final_price }}</span></p>
+        </div>
+        {% endif %}
 
         <p class="text-gray-600 text-sm mt-4">
             Use this code at the room keypad to access your room.

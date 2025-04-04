@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+from django.contrib.messages import constants as messages
+
 from dotenv import load_dotenv
 load_dotenv()  
 
@@ -113,12 +115,21 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+MESSAGE_TAGS = {
+    messages.DEBUG: "bg-gray-100 text-gray-700",
+    messages.INFO: "bg-blue-100 text-blue-700",
+    messages.SUCCESS: "bg-green-100 text-green-700",
+    messages.WARNING: "bg-yellow-100 text-yellow-700",
+    messages.ERROR: "bg-red-100 text-red-700",
+}
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Africa/Lagos'
 
 USE_I18N = True
 
@@ -154,6 +165,7 @@ FLUTTERWAVE_SECRET_KEY = "FLWSECK_TEST-fb128dff8900a885478f79df3db60c69-X"
 FLUTTERWAVE_ENCRYPTION_KEY = "FLWSECK_TEST0b9d6b1f894f"
 FLUTTERWAVE_BASE_URL = "https://api.flutterwave.com/v3"
 
+MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 
 
 from django.templatetags.static import static
@@ -286,6 +298,11 @@ UNFOLD = {
                         "title": _("Booking"),
                         "icon": "list_alt",
                         "link": reverse_lazy("admin:hotel_booking_changelist"),
+                    },
+                    {
+                        "title": _("Record"),
+                        "icon": "contract_edit",
+                        "link": reverse_lazy("admin:hotel_record_changelist"),
                     },
                     {
                         "title": _("Payment"),
